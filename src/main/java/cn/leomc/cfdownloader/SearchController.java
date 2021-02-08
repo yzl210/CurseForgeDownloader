@@ -8,8 +8,6 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -34,22 +32,7 @@ public class SearchController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        projectListView.setCellFactory(param -> new ListCell<>() {
-            @Override
-            public void updateItem(CurseForgeProjectWrapper project, boolean empty) {
-                super.updateItem(project, empty);
-                if (empty) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setText(project.toString());
-                    Image image = ImageCache.getOrDownloadLogo(project.getProject());
-                    if (image != null) {
-                        setGraphic(new ImageView(image));
-                    }
-                }
-            }
-        });
+        projectListView.setCellFactory(param -> new PListCell());
     }
 
     public void onSearchButtonAction(ActionEvent actionEvent) {
