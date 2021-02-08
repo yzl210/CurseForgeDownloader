@@ -34,8 +34,23 @@ public class SearchController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        projectListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            public void updateItem(CurseForgeProjectWrapper project, boolean empty) {
+                super.updateItem(project, empty);
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(project.toString());
+                    Image image = ImageCache.getOrDownloadLogo(project.getProject());
+                    if (image != null) {
+                        setGraphic(new ImageView(image));
+                    }
+                }
+            }
+        });
     }
-
 
     public void onSearchButtonAction(ActionEvent actionEvent) {
         if (!searchBar.getText().isEmpty()) {
