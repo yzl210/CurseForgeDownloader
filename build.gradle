@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
 group 'cn.leomc'
@@ -19,15 +20,19 @@ repositories {
 shadowJar {
     manifest {
         attributes(
-                'Main-Class': 'cn.leomc.cfdownloader.CurseForgeDownloader'
+                'Main-Class': 'cn.leomc.cfdownloader.Launcher'
         )
     }
     exclude("javafx")
 }
 
-dependencies {
-    implementation fileTree(dir: "lib/compile/lib")
-    implementation fileTree(dir: "lib/implement")
-    implementation "com.github.TheRandomLabs:CurseAPI:master-SNAPSHOT"
+javafx {
+    version = '15.0.1'
+    modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.media', 'javafx.swing', 'javafx.web']
+    configuration = 'compileOnly'
 
+}
+
+dependencies {
+    implementation "com.github.TheRandomLabs:CurseAPI:master-SNAPSHOT"
 }
