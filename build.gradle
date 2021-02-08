@@ -6,6 +6,7 @@ plugins {
 group 'cn.leomc'
 version '1.0'
 
+sourceCompatibility = targetCompatibility = "1.8"
 
 
 repositories {
@@ -15,8 +16,18 @@ repositories {
     }
 }
 
+shadowJar {
+    manifest {
+        attributes(
+                'Main-Class': 'cn.leomc.cfdownloader.CurseForgeDownloader'
+        )
+    }
+    exclude("javafx")
+}
+
 dependencies {
-    implementation fileTree(dir: "lib")
+    implementation fileTree(dir: "lib/compile/lib")
+    implementation fileTree(dir: "lib/implement")
     implementation "com.github.TheRandomLabs:CurseAPI:master-SNAPSHOT"
 
 }
