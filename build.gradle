@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+group 'cn.leomc'
+version '1.0'
+
+
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "lib")
+    implementation "com.github.TheRandomLabs:CurseAPI:master-SNAPSHOT"
+
+}
