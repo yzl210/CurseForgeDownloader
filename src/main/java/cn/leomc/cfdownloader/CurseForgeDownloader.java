@@ -23,6 +23,12 @@ public class CurseForgeDownloader extends Application {
         Scene scene = new Scene(root);
         stage.setScene(scene);
         SearchController searchController = loader.getController();
+        stage.setOnCloseRequest(event -> {
+            event.consume();
+            AsyncTaskExecutor.pool.shutdown();
+            System.exit(0);
+        });
+
         stage.show();
     }
 
