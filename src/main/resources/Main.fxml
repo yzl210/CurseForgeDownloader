@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<TabPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0"
+         xmlns="http://javafx.com/javafx/11.0.1" fx:controller="cn.leomc.cfdownloader.MainController">
+    <Tab closable="false" text="Browse">
+
+        <BorderPane>
+            <top>
+                <HBox alignment="CENTER" prefHeight="53.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+                    <TextField fx:id="searchBar" prefHeight="23.0" prefWidth="300.0"/>
+                    <Label fx:id="resultsLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="290.0"
+                           layoutY="18.0" prefHeight="15.0" prefWidth="155.0"/>
+                    <Button fx:id="searchButton" mnemonicParsing="false" onAction="#onSearchButtonAction"
+                            prefHeight="23.0" prefWidth="70.0" text="Search"/>
+                </HBox>
+            </top>
+            <center>
+                <ListView fx:id="projectListView" layoutX="5.0" layoutY="48.0" prefHeight="308.0" prefWidth="332.0"/>
+            </center>
+            <bottom>
+                <HBox alignment="CENTER" prefHeight="53.0" prefWidth="600.0" spacing="100.0"
+                      BorderPane.alignment="CENTER">
+                    <Button fx:id="addToListButton" mnemonicParsing="false" onAction="#onAddToListButtonAction"
+                            text="Add To List"/>
+                    <Button fx:id="downloadButton" layoutX="263.0" layoutY="362.0" mnemonicParsing="false"
+                            onAction="#onDownloadButtonAction" text="Download"/>
+                </HBox>
+            </bottom>
+        </BorderPane>
+    </Tab>
+    <Tab closable="false" text="List">
+        <BorderPane prefHeight="200.0" prefWidth="200.0">
+            <left>
+                <ListView fx:id="projectListListView" prefHeight="361.0" prefWidth="300.0"
+                          BorderPane.alignment="CENTER"/>
+            </left>
+            <center>
+                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="40.0"
+                      BorderPane.alignment="CENTER">
+                    <Button fx:id="removeSelectedButton" mnemonicParsing="false"
+                            onAction="#onRemoveSelectedButtonAction" text="Remove Selected"/>
+                    <Button fx:id="removeAllButton" mnemonicParsing="false" onAction="#onRemoveAllButtonAction"
+                            text="Remove All"/>
+                    <Button fx:id="importButton" mnemonicParsing="false" onAction="#onImportButtonAction"
+                            text="Import"/>
+                    <Button fx:id="exportButton" mnemonicParsing="false" onAction="#onExportButtonAction"
+                            text="Export"/>
+                    <Button fx:id="downloadAllButton" mnemonicParsing="false" onAction="#onDownloadAllButtonAction"
+                            text="Download All"/>
+                </VBox>
+            </center>
+        </BorderPane>
+    </Tab>
+</TabPane>

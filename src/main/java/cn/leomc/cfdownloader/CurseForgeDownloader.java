@@ -15,14 +15,15 @@ public class CurseForgeDownloader extends Application {
         launch(args);
     }
 
+
     @Override
     public void start(Stage stage) throws Exception {
         stage.setTitle("CF Downloader");
-        loader.setLocation(ClassLoader.getSystemResource("Search.fxml"));
+        loader.setLocation(ClassLoader.getSystemResource("Main.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        SearchController searchController = loader.getController();
+        MainController mainController = loader.getController();
         stage.setOnCloseRequest(event -> {
             event.consume();
             AsyncTaskExecutor.pool.shutdown();

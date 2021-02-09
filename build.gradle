@@ -23,16 +23,17 @@ shadowJar {
                 'Main-Class': 'cn.leomc.cfdownloader.Launcher'
         )
     }
-    exclude("javafx")
+
+
 }
 
 javafx {
     version = '15.0.1'
     modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.media', 'javafx.swing', 'javafx.web']
     configuration = 'compileOnly'
-
 }
 
 dependencies {
     implementation "com.github.TheRandomLabs:CurseAPI:master-SNAPSHOT"
 }
+

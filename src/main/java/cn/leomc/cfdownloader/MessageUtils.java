@@ -1,7 +1,9 @@
 package cn.leomc.cfdownloader;
 
 import javafx.application.Platform;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
@@ -52,6 +54,16 @@ public class MessageUtils {
             alert.setTitle("info");
             alert.setHeaderText(message);
             alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
+    public static void warn(String header, String content) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warn");
+            alert.setHeaderText(header);
+            alert.setContentText(content);
             alert.showAndWait();
         });
     }
