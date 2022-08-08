@@ -1,14 +1,10 @@
 package cn.leomc.cfdownloader;
 
-import com.therandomlabs.curseapi.CurseAPI;
-import com.therandomlabs.curseapi.CurseException;
-import com.therandomlabs.curseapi.project.CurseProject;
+import io.github.matyrobbrt.curseforgeapi.schemas.mod.Mod;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class FileUtils {
 
@@ -18,27 +14,18 @@ public class FileUtils {
             return Files.readAllLines(file.toPath());
         } catch (Throwable e) {
             MessageUtils.error(e);
-            return null;
+            return Collections.emptyList();
         }
     }
 
-    public static List<CurseForgeProjectWrapper> readProjects(File file) {
+    public static List<CFModWrapper> readProjects(File file) {
         List<String> content = readFileByLine(file);
-
-        List<CurseForgeProjectWrapper> projects = new ArrayList<>();
-
+        List<CFModWrapper> projects = new ArrayList<>();
         for (String line : content) {
             try {
-                int projectID = Integer.parseInt(line);
-                try {
-                    Optional<CurseProject> project = CurseAPI.project(projectID);
-                    if (project.isPresent()) {
-                        projects.add(new CurseForgeProjectWrapper(project.get()));
-                    } else
-                        MessageUtils.warn("Unable to parse file " + file.getName(), "Project " + projectID + " not found, will continue to parse remaining.");
-                } catch (CurseException e) {
-                    MessageUtils.error(e);
-                }
+                int id = Integer.parseInt(line);
+                CurseForgeUtils.getMod(id).ifPresentOrElse(mod -> projects.add(new CFModWrapper(mod)),
+                        () -> MessageUtils.warn("Unable to parse file " + file.getName(), "Mod " + id + " not found, will continue to parse remaining."));
             } catch (NumberFormatException e) {
                 MessageUtils.warn("Unable to parse file " + file.getName(), "Expected integer, but got: " + line + "\nWill continue to parse remaining.");
             }

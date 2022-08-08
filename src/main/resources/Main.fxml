@@ -2,6 +2,10 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import io.github.palexdev.materialfx.controls.MFXButton?>
+<?import io.github.palexdev.materialfx.controls.MFXProgressSpinner?>
 <TabPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0"
          xmlns="http://javafx.com/javafx/11.0.1" fx:controller="cn.leomc.cfdownloader.MainController">
     <Tab closable="false" text="Browse">
@@ -9,22 +13,25 @@
         <BorderPane>
             <top>
                 <HBox alignment="CENTER" prefHeight="53.0" prefWidth="600.0" BorderPane.alignment="CENTER">
-                    <TextField fx:id="searchBar" prefHeight="23.0" prefWidth="300.0"/>
+                    <MFXTextField fx:id="searchBar" prefHeight="10.0" prefWidth="300.0" floatingText="Search Mod"/>
                     <Label fx:id="resultsLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="290.0"
                            layoutY="18.0" prefHeight="15.0" prefWidth="155.0"/>
-                    <Button fx:id="searchButton" mnemonicParsing="false" onAction="#onSearchButtonAction"
+                    <MFXProgressSpinner fx:id="progressSpinner" layoutX="50.0"
+                                        layoutY="18.0" prefHeight="15.0" prefWidth="15.0" visible="false"/>
+                    <Label text="        "/>
+                    <MFXButton fx:id="searchButton" mnemonicParsing="false" onAction="#onSearchButtonAction"
                             prefHeight="23.0" prefWidth="70.0" text="Search"/>
                 </HBox>
             </top>
             <center>
-                <ListView fx:id="projectListView" layoutX="5.0" layoutY="48.0" prefHeight="308.0" prefWidth="332.0"/>
+                <ListView fx:id="modListView" layoutX="5.0" layoutY="48.0" prefHeight="308.0" prefWidth="332.0"/>
             </center>
             <bottom>
                 <HBox alignment="CENTER" prefHeight="53.0" prefWidth="600.0" spacing="100.0"
                       BorderPane.alignment="CENTER">
-                    <Button fx:id="addToListButton" mnemonicParsing="false" onAction="#onAddToListButtonAction"
+                    <MFXButton fx:id="addToListButton" mnemonicParsing="false" onAction="#onAddToListButtonAction"
                             text="Add To List"/>
-                    <Button fx:id="downloadButton" layoutX="263.0" layoutY="362.0" mnemonicParsing="false"
+                    <MFXButton fx:id="downloadButton" layoutX="263.0" layoutY="362.0" mnemonicParsing="false"
                             onAction="#onDownloadButtonAction" text="Download"/>
                 </HBox>
             </bottom>
@@ -33,21 +40,21 @@
     <Tab closable="false" text="List">
         <BorderPane prefHeight="200.0" prefWidth="200.0">
             <left>
-                <ListView fx:id="projectListListView" prefHeight="361.0" prefWidth="300.0"
+                <ListView fx:id="modListListView" prefHeight="361.0" prefWidth="300.0"
                           BorderPane.alignment="CENTER"/>
             </left>
             <center>
                 <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="40.0"
                       BorderPane.alignment="CENTER">
-                    <Button fx:id="removeSelectedButton" mnemonicParsing="false"
+                    <MFXButton fx:id="removeSelectedButton" mnemonicParsing="false"
                             onAction="#onRemoveSelectedButtonAction" text="Remove Selected"/>
-                    <Button fx:id="removeAllButton" mnemonicParsing="false" onAction="#onRemoveAllButtonAction"
+                    <MFXButton fx:id="removeAllButton" mnemonicParsing="false" onAction="#onRemoveAllButtonAction"
                             text="Remove All"/>
-                    <Button fx:id="importButton" mnemonicParsing="false" onAction="#onImportButtonAction"
+                    <MFXButton fx:id="importButton" mnemonicParsing="false" onAction="#onImportButtonAction"
                             text="Import"/>
-                    <Button fx:id="exportButton" mnemonicParsing="false" onAction="#onExportButtonAction"
+                    <MFXButton fx:id="exportButton" mnemonicParsing="false" onAction="#onExportButtonAction"
                             text="Export"/>
-                    <Button fx:id="downloadAllButton" mnemonicParsing="false" onAction="#onDownloadAllButtonAction"
+                    <MFXButton fx:id="downloadAllButton" mnemonicParsing="false" onAction="#onDownloadAllButtonAction"
                             text="Download All"/>
                 </VBox>
             </center>

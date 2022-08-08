@@ -1,20 +1,15 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
-    id 'org.openjfx.javafxplugin' version '0.0.9'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'application'
 }
 
 group 'cn.leomc'
 version '1.0'
 
-sourceCompatibility = targetCompatibility = "1.8"
-
-
 repositories {
     mavenCentral()
-    maven {
-        url "https://jitpack.io"
-    }
 }
 
 shadowJar {
@@ -23,17 +18,19 @@ shadowJar {
                 'Main-Class': 'cn.leomc.cfdownloader.Launcher'
         )
     }
+}
 
-
+application {
+    mainClass = 'cn.leomc.cfdownloader.Launcher'
 }
 
 javafx {
-    version = '15.0.1'
+    version = '18.0.1'
     modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.media', 'javafx.swing', 'javafx.web']
-    configuration = 'compileOnly'
 }
 
 dependencies {
-    implementation "com.github.TheRandomLabs:CurseAPI:master-SNAPSHOT"
+    implementation 'io.github.matyrobbrt:curseforgeapi:1.7.3'
+    implementation 'io.github.palexdev:materialfx:11.13.5'
 }
 

@@ -1,46 +1,56 @@
 package cn.leomc.cfdownloader;
 
-import com.therandomlabs.curseapi.project.CurseProject;
+import cn.leomc.cfdownloader.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
+import javax.imageio.ImageIO;
+import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 public class ImageCache {
 
-    public static final HashMap<CurseProject, Image> PROJECT_LOGOS = new HashMap<>();
+    private static final Executor EXECUTOR = Executors.newCachedThreadPool();
+    public static final Map<Integer, Image> MOD_LOGOS = new ConcurrentHashMap<>();
 
+    private static final Map<Integer, CompletableFuture<?>> TASKS = new ConcurrentHashMap<>();
 
-    public static Image getOrDownloadLogo(CurseProject project) {
-        if (PROJECT_LOGOS.containsKey(project))
-            return PROJECT_LOGOS.get(project);
-        else {
-            AsyncTaskExecutor.run(() -> {
-                try {
-                    PROJECT_LOGOS.put(project, SwingFXUtils.toFXImage(ImageUtils.resizeImage(project.logo().get(), 32, 32), null));
-                } catch (Exception e) {
-                    MessageUtils.error(e);
-                }
-            });
-            return null;
+    public static void updateIcon(CFModWrapper mod, ModListCell cell) {
+        if (MOD_LOGOS.containsKey(mod.getMod().id()))
+            cell.setGraphic(new ImageView(MOD_LOGOS.get(mod.getMod().id())));
+        else if(!TASKS.containsKey(mod.getMod().id())){
+            AtomicBoolean b = new AtomicBoolean(true);
+            TASKS.put(mod.getMod().id(), createTask(mod, cell, b));
+            b.set(false);
         }
     }
 
-    public static Image getOrDownloadLogoAndUpdate(CurseForgeProjectWrapper project, PListCell listCell) {
-        if (PROJECT_LOGOS.containsKey(project.getProject()))
-            return PROJECT_LOGOS.get(project.getProject());
-        else {
-            AsyncTaskExecutor.run(() -> {
-                try {
-                    PROJECT_LOGOS.put(project.getProject(), SwingFXUtils.toFXImage(ImageUtils.resizeImage(project.getProject().logo().get(), 32, 32), null));
-                    Platform.runLater(() -> listCell.updateItem(project, false));
-                } catch (Exception e) {
-                    MessageUtils.error(e);
-                }
-            });
-            return null;
-        }
+    private static CompletableFuture<?> createTask(CFModWrapper mod, ModListCell cell, AtomicBoolean b){
+        return CompletableFuture
+                .supplyAsync(() -> {
+                    while (b.get());
+                    try {
+                        return SwingFXUtils.toFXImage(ImageUtils.resizeImage(ImageIO.read(new URL(mod.getMod().logo().url())), 32, 32), null);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }, EXECUTOR)
+                .whenComplete((image, throwable) -> {
+                    if(throwable != null)
+                        Log.LOGGER.log(Level.WARNING, throwable, () -> "Failed to get icon for mod \"" + mod.toString() + "\"");
+                    if(image != null){
+                        MOD_LOGOS.put(mod.getMod().id(), image);
+                        Platform.runLater(() -> cell.setGraphic(new ImageView(image)));
+                        TASKS.remove(mod.getMod().id());
+                    }
+                });
     }
 
 }

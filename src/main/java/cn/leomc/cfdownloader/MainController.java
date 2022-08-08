@@ -1,32 +1,35 @@
 package cn.leomc.cfdownloader;
 
-import com.therandomlabs.curseapi.CurseAPI;
-import com.therandomlabs.curseapi.CurseException;
-import com.therandomlabs.curseapi.file.CurseFile;
-import com.therandomlabs.curseapi.file.CurseFiles;
+import io.github.matyrobbrt.curseforgeapi.schemas.mod.Mod;
+import io.github.palexdev.materialfx.controls.MFXProgressSpinner;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class MainController implements Initializable {
 
-    public ListView<CurseForgeProjectWrapper> projectListView;
+    public ListView<CFModWrapper> modListView;
     public TextField searchBar;
     public Button searchButton;
     public Button downloadButton;
     public Label resultsLabel;
+    public MFXProgressSpinner progressSpinner;
 
-    public ListView<CurseForgeProjectWrapper> projectListListView;
+
+    public ListView<CFModWrapper> modListListView;
     public Button removeSelectedButton;
     public Button downloadAllButton;
     public Button exportButton;
@@ -35,65 +38,79 @@ public class MainController implements Initializable {
     public Button addToListButton;
     private Stage stage;
 
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
+
+    private CompletableFuture<?> initTask;
+    private CompletableFuture<?> searchTask;
+
+    private String lastSearch = "";
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        projectListView.setCellFactory(param -> new PListCell());
-        projectListListView.setCellFactory(param -> new PListCell());
+        modListView.setCellFactory(param -> new ModListCell());
+        modListListView.setCellFactory(param -> new ModListCell());
+        initTask = CompletableFuture
+                .supplyAsync(() -> CurseForgeUtils.searchMods(""))
+                .exceptionally(t -> {
+                    Log.LOGGER.log(Level.WARNING, t, () -> "Failed to load default mods");
+                    return Collections.emptyList();
+                })
+                .thenAccept(mods -> Platform.runLater(() -> {
+                    if(initTask == null)
+                        return;
+                    List<CFModWrapper> cfModWrappers = CFModWrapper.of(mods);
+                    modListView.setItems(FXCollections.observableArrayList(cfModWrappers));
+
+                    initTask = null;
+                }));
     }
 
     public void onSearchButtonAction(ActionEvent actionEvent) {
-        if (!searchBar.getText().isEmpty()) {
-            List<CurseForgeProjectWrapper> curseForgeProjectWrappers = CurseForgeProjectWrapper.parseList(CurseForgeUtils.searchProjects(searchBar.getText()));
-            if (!curseForgeProjectWrappers.isEmpty()) {
-                resultsLabel.setText("Found " + curseForgeProjectWrappers.size() + " result(s)");
-                projectListView.setItems(FXCollections.observableArrayList(curseForgeProjectWrappers));
-            } else {
-                projectListView.setItems(FXCollections.emptyObservableList());
-                resultsLabel.setText("No result!");
-            }
-        } else
-            MessageUtils.info("Please type the name!");
+        if (!searchBar.getText().isEmpty() && !lastSearch.equals(searchBar.getText()) && searchTask == null) {
+            if(initTask != null)
+                initTask.cancel(true);
+            progressSpinner.setVisible(true);
+            String text = searchBar.getText();
+            searchTask = CompletableFuture
+                    .supplyAsync(() -> CurseForgeUtils.searchMods(text))
+                    .exceptionally(t -> {
+                        MessageUtils.error(t, "Failed to search \"" + text + "\"");
+                        return Collections.emptyList();
+                    })
+                    .thenAccept(mods -> {
+                        Platform.runLater(() -> {
+                            progressSpinner.setVisible(false);
+                            lastSearch = text;
+                            List<CFModWrapper> cfModWrappers = CFModWrapper.of(mods);
+                            if (!cfModWrappers.isEmpty()) {
+                                resultsLabel.setText("Found " + cfModWrappers.size() + " mod(s)");
+                                modListView.setItems(FXCollections.observableArrayList(cfModWrappers));
+                            } else {
+                                modListView.setItems(FXCollections.emptyObservableList());
+                                resultsLabel.setText("No mod found!");
+                            }
+                            searchTask = null;
+                        });
+                    });
+        }
     }
 
     public void onDownloadButtonAction(ActionEvent actionEvent) {
-        try {
-
-            CurseForgeProjectWrapper project = getSelectedProject(projectListView);
-            if (project == null)
+            CFModWrapper mod = getSelectedProject(modListView);
+            if (mod == null)
                 return;
-            Optional<CurseFiles<CurseFile>> optionalFiles = CurseAPI.files(project.getProject().id());
-            if (optionalFiles.isPresent()) {
-                CurseFile file = optionalFiles.get().withComparator(CurseFiles.SORT_BY_NEWEST).first();
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Select Download Directory");
-                String extension = file.displayName().substring(file.displayName().lastIndexOf(".") + 1);
-                FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter(extension.toUpperCase() + " File", "*." + extension);
-                fileChooser.getExtensionFilters().add(extensionFilter);
-                fileChooser.setInitialFileName(file.displayName());
-                File directory = fileChooser.showSaveDialog(stage);
-                if (directory != null) {
-                    file.download(directory.toPath());
-                    MessageUtils.info("Download finished!");
-                }
-            } else {
-                MessageUtils.info("This project has no file!");
-            }
-        } catch (Exception e) {
-            MessageUtils.error(e);
-        }
+            CurseForgeUtils.getLatestFile(mod.getMod()).ifPresentOrElse(file -> {
+                    if(CurseForgeUtils.download(file, stage))
+                        MessageUtils.info("Download finished!");
+            }, () -> MessageUtils.info("This project has no file!"));
     }
 
     public void onAddToListButtonAction(ActionEvent actionEvent) {
         try {
-            CurseForgeProjectWrapper project = getSelectedProject(projectListView);
+            CFModWrapper project = getSelectedProject(modListView);
             if (project == null)
                 return;
-            if (!projectListListView.getItems().contains(project))
-                projectListListView.getItems().add(project);
+            if (!modListListView.getItems().contains(project))
+                modListListView.getItems().add(project);
             else
                 MessageUtils.info("This project is already in the list!");
         } catch (Exception e) {
@@ -102,14 +119,14 @@ public class MainController implements Initializable {
     }
 
     public void onRemoveSelectedButtonAction(ActionEvent actionEvent) {
-        CurseForgeProjectWrapper project = getSelectedProject(projectListListView);
+        CFModWrapper project = getSelectedProject(modListListView);
         if (project == null)
             return;
-        projectListListView.getItems().remove(project);
+        modListListView.getItems().remove(project);
     }
 
     public void onRemoveAllButtonAction(ActionEvent actionEvent) {
-        projectListListView.getItems().clear();
+        modListListView.getItems().clear();
     }
 
     public void onImportButtonAction(ActionEvent actionEvent) {
@@ -119,27 +136,27 @@ public class MainController implements Initializable {
         fileChooser.getExtensionFilters().add(extensionFilter);
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
-            for (CurseForgeProjectWrapper project : FileUtils.readProjects(file)) {
-                if (!projectListListView.getItems().contains(project))
-                    projectListListView.getItems().add(project);
+            for (CFModWrapper project : FileUtils.readProjects(file)) {
+                if (!modListListView.getItems().contains(project))
+                    modListListView.getItems().add(project);
             }
             MessageUtils.info("Finished importing!");
         }
     }
 
     public void onExportButtonAction(ActionEvent actionEvent) {
-        if (!projectListListView.getItems().isEmpty()) {
+        if (!modListListView.getItems().isEmpty()) {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Select Export Directory");
+            fileChooser.setTitle("Export As...");
             FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("TXT file", "*.txt");
             fileChooser.getExtensionFilters().add(extensionFilter);
-            fileChooser.setInitialFileName("ExportedProjectList.txt");
+            fileChooser.setInitialFileName("ExportedModList.txt");
             File file = fileChooser.showSaveDialog(stage);
             if (file != null) {
                 StringBuilder builder = new StringBuilder();
-                for (CurseForgeProjectWrapper project : projectListListView.getItems()) {
+                for (CFModWrapper project : modListListView.getItems()) {
                     builder
-                            .append(project.getProject().id())
+                            .append(project.getMod().id())
                             .append("\n");
                 }
 
@@ -151,30 +168,27 @@ public class MainController implements Initializable {
     }
 
     public void onDownloadAllButtonAction(ActionEvent actionEvent) {
-        if (!projectListListView.getItems().isEmpty()) {
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-            directoryChooser.setTitle("Select Download Directory");
-            File directory = directoryChooser.showDialog(stage);
-            if (directory != null) {
-                for (CurseForgeProjectWrapper project : projectListListView.getItems()) {
-                    try {
-                        CurseForgeUtils.getLatestFile(project.getProject()).downloadToDirectory(directory.toPath());
-                    } catch (CurseException e) {
-                        MessageUtils.warn("Unable to download project: " + project.getProject().name(), e.toString());
-                    }
-                }
-            }
-        } else
+        if (!modListListView.getItems().isEmpty()) {
+            List<Mod> fails = CurseForgeUtils.downloadWrappers(modListListView.getItems(), stage);
+           if(fails != null)
+               if (fails.isEmpty())
+                   MessageUtils.info("Download Finished!");
+               else {
+                   String failed = fails.stream().map(Mod::name).collect(Collectors.joining(", "));
+                   MessageUtils.warn("Not downloaded mods", "The following mods have failed to download: \n" + failed);
+               }
+        }
+        else
             MessageUtils.info("Project List is empty!");
     }
 
 
-    private CurseForgeProjectWrapper getSelectedProject(ListView<CurseForgeProjectWrapper> listView) {
-        SelectionModel<CurseForgeProjectWrapper> selectionModel = listView.getSelectionModel();
-        if (selectionModel != null && !selectionModel.isEmpty() && selectionModel.getSelectedItem().getProject() != null)
+    private CFModWrapper getSelectedProject(ListView<CFModWrapper> listView) {
+        SelectionModel<CFModWrapper> selectionModel = listView.getSelectionModel();
+        if (selectionModel != null && !selectionModel.isEmpty() && selectionModel.getSelectedItem().getMod() != null)
             return selectionModel.getSelectedItem();
         else
-            MessageUtils.info("Please select one project first!");
+            MessageUtils.info("Please select a project first!");
         return null;
     }
 
