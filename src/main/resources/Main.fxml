@@ -1,61 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
-<?import io.github.palexdev.materialfx.controls.MFXTextField?>
 <?import io.github.palexdev.materialfx.controls.MFXButton?>
-<?import io.github.palexdev.materialfx.controls.MFXProgressSpinner?>
-<TabPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="400.0" prefWidth="600.0"
-         xmlns="http://javafx.com/javafx/11.0.1" fx:controller="cn.leomc.cfdownloader.MainController">
-    <Tab closable="false" text="Browse">
+<?import io.github.palexdev.materialfx.controls.MFXListView?>
+    <?import io.github.palexdev.materialfx.controls.MFXProgressSpinner?>
+<?import io.github.palexdev.materialfx.controls.MFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.image.ImageView?>
+<TabPane stylesheets="Main.css" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="cn.leomc.cfdownloader.MainController" fx:id="tabPane">
+    <Tab closable="false" text="Browse">
         <BorderPane>
             <top>
-                <HBox alignment="CENTER" prefHeight="53.0" prefWidth="600.0" BorderPane.alignment="CENTER">
-                    <MFXTextField fx:id="searchBar" prefHeight="10.0" prefWidth="300.0" floatingText="Search Mod"/>
+                <HBox alignment="CENTER" BorderPane.alignment="CENTER">
+                    <MFXTextField fx:id="searchBar" minHeight="5.0" onAction="#onSearchButtonAction" prefHeight="27.0"
+                                  prefWidth="300.0"  floatingText="Search Project" floatMode="BORDER">
+                        <HBox.margin>
+                            <Insets bottom="5.0" top="5.0"/>
+                        </HBox.margin>
+                    </MFXTextField>
                     <Label fx:id="resultsLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="290.0"
                            layoutY="18.0" prefHeight="15.0" prefWidth="155.0"/>
-                    <MFXProgressSpinner fx:id="progressSpinner" layoutX="50.0"
-                                        layoutY="18.0" prefHeight="15.0" prefWidth="15.0" visible="false"/>
+                    <MFXProgressSpinner fx:id="progressSpinner" prefHeight="15.0" prefWidth="15.0" visible="false"/>
                     <Label text="        "/>
-                    <MFXButton fx:id="searchButton" mnemonicParsing="false" onAction="#onSearchButtonAction"
-                            prefHeight="23.0" prefWidth="70.0" text="Search"/>
+                    <MFXButton buttonType="RAISED" styleClass="outline-button" fx:id="searchButton" mnemonicParsing="false" onAction="#onSearchButtonAction"
+                               prefHeight="25.0" prefWidth="70.0" text="Search"/>
                 </HBox>
             </top>
             <center>
-                <ListView fx:id="modListView" layoutX="5.0" layoutY="48.0" prefHeight="308.0" prefWidth="332.0"/>
+                <MFXListView fx:id="modListView" prefHeight="Infinity" prefWidth="Infinity"/>
             </center>
             <bottom>
-                <HBox alignment="CENTER" prefHeight="53.0" prefWidth="600.0" spacing="100.0"
+                <HBox alignment="CENTER" prefHeight="50.0" prefWidth="600.0" spacing="100.0"
                       BorderPane.alignment="CENTER">
-                    <MFXButton fx:id="addToListButton" mnemonicParsing="false" onAction="#onAddToListButtonAction"
-                            text="Add To List"/>
-                    <MFXButton fx:id="downloadButton" layoutX="263.0" layoutY="362.0" mnemonicParsing="false"
-                            onAction="#onDownloadButtonAction" text="Download"/>
+                    <MFXButton fx:id="addToListButton" buttonType="RAISED" mnemonicParsing="false" onAction="#onAddToListButtonAction"
+                               text="Add To List"/>
+                    <MFXButton fx:id="downloadButton" buttonType="RAISED" mnemonicParsing="false"
+                               onAction="#onDownloadButtonAction" text="Download"/>
                 </HBox>
             </bottom>
         </BorderPane>
     </Tab>
     <Tab closable="false" text="List">
         <BorderPane prefHeight="200.0" prefWidth="200.0">
+            <center>
+                <MFXListView fx:id="modListListView" prefHeight="Infinity" prefWidth="Infinity"
+                             BorderPane.alignment="CENTER"/>
+            </center>
+            <bottom>
+                <HBox alignment="CENTER" prefHeight="40.0" spacing="40.0"
+                      BorderPane.alignment="CENTER">
+                    <MFXButton fx:id="removeSelectedButton" mnemonicParsing="false"
+                               onAction="#onRemoveSelectedButtonAction" text="Remove Selected"/>
+                    <MFXButton fx:id="removeAllButton" mnemonicParsing="false" onAction="#onRemoveAllButtonAction"
+                               text="Remove All"/>
+                    <MFXButton fx:id="importButton" mnemonicParsing="false" onAction="#onImportButtonAction"
+                               text="Import"/>
+                    <MFXButton fx:id="exportButton" mnemonicParsing="false" onAction="#onExportButtonAction"
+                               text="Export"/>
+                    <MFXButton fx:id="downloadAllButton" mnemonicParsing="false" onAction="#onDownloadAllButtonAction"
+                               text="Download All"/>
+                </HBox>
+            </bottom>
+        </BorderPane>
+    </Tab>
+    <Tab closable="false" text="Modpack" fx:id="modpackTab">
+        <BorderPane prefHeight="200.0" prefWidth="200.0">
+            <top>
+                <Label fx:id="modpackNameLabel" styleClass="title" text="Please load a modpack or browse in first tab"
+                       BorderPane.alignment="CENTER"/>
+            </top>
             <left>
-                <ListView fx:id="modListListView" prefHeight="361.0" prefWidth="300.0"
-                          BorderPane.alignment="CENTER"/>
+                <VBox>
+                    <Label fx:id="modpackMods" text="Mods: "/>
+                    <MFXListView fx:id="modpackModListView" prefHeight="1000000" prefWidth="300.0"
+                                 BorderPane.alignment="CENTER"/>
+                </VBox>
             </left>
             <center>
                 <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="40.0"
                       BorderPane.alignment="CENTER">
-                    <MFXButton fx:id="removeSelectedButton" mnemonicParsing="false"
-                            onAction="#onRemoveSelectedButtonAction" text="Remove Selected"/>
-                    <MFXButton fx:id="removeAllButton" mnemonicParsing="false" onAction="#onRemoveAllButtonAction"
-                            text="Remove All"/>
-                    <MFXButton fx:id="importButton" mnemonicParsing="false" onAction="#onImportButtonAction"
-                            text="Import"/>
-                    <MFXButton fx:id="exportButton" mnemonicParsing="false" onAction="#onExportButtonAction"
-                            text="Export"/>
-                    <MFXButton fx:id="downloadAllButton" mnemonicParsing="false" onAction="#onDownloadAllButtonAction"
-                            text="Download All"/>
+                    <Label fx:id="modpackInfoLabel" BorderPane.alignment="CENTER"/>
+                    <MFXButton fx:id="loadModpackButton" mnemonicParsing="false" onAction="#onLoadModpackButtonAction"
+                               text="Load Modpack"/>
                 </VBox>
             </center>
         </BorderPane>

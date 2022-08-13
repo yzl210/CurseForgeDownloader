@@ -9,7 +9,7 @@ public class Launcher {
         try {
             Class.forName("javafx.application.Application");
         } catch (ClassNotFoundException e) {
-            JOptionPane.showMessageDialog(null, "JavaFX not found!\nPlease downgrade your Java to 8 - 10 or install OpenJFX.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "JavaFX not found!\nPlease install OpenJFX.", "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
         CurseForgeDownloader.launch(CurseForgeDownloader.class, args);

@@ -1,20 +1,14 @@
 package cn.leomc.cfdownloader;
 
-import javafx.scene.control.ListCell;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import io.github.palexdev.materialfx.controls.MFXListView;
+import io.github.palexdev.materialfx.controls.cell.MFXListCell;
 
-public class ModListCell extends ListCell<CFModWrapper> {
+public class ModListCell extends MFXListCell<ModNode> {
 
-    @Override
-    public void updateItem(CFModWrapper mod, boolean empty) {
-        super.updateItem(mod, empty);
-        if (empty) {
-            setText(null);
-            setGraphic(null);
-        } else {
-            setText(mod.toString());
-            ImageCache.updateIcon(mod, this);
-        }
+    public ModListCell(MFXListView<ModNode> listView, ModNode data) {
+        super(listView, data);
+        //setStyle("-fx-padding: 2px; -fx-background-color: transparent, -fx-background; -fx-border-color: darkgray; -fx-border-style: ;-fx-background-insets: 0px, 2px");
     }
+
+
 }

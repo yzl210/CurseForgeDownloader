@@ -1,10 +1,10 @@
 package cn.leomc.cfdownloader;
 
-import io.github.matyrobbrt.curseforgeapi.schemas.mod.Mod;
-
 import java.io.File;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class FileUtils {
 
@@ -18,13 +18,13 @@ public class FileUtils {
         }
     }
 
-    public static List<CFModWrapper> readProjects(File file) {
+    public static List<CFMod> readProjects(File file) {
         List<String> content = readFileByLine(file);
-        List<CFModWrapper> projects = new ArrayList<>();
+        List<CFMod> projects = new ArrayList<>();
         for (String line : content) {
             try {
                 int id = Integer.parseInt(line);
-                CurseForgeUtils.getMod(id).ifPresentOrElse(mod -> projects.add(new CFModWrapper(mod)),
+                CurseForgeUtils.getMod(id).ifPresentOrElse(mod -> projects.add(CFMod.of(mod)),
                         () -> MessageUtils.warn("Unable to parse file " + file.getName(), "Mod " + id + " not found, will continue to parse remaining."));
             } catch (NumberFormatException e) {
                 MessageUtils.warn("Unable to parse file " + file.getName(), "Expected integer, but got: " + line + "\nWill continue to parse remaining.");

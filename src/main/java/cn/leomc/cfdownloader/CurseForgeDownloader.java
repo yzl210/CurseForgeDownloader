@@ -2,13 +2,14 @@ package cn.leomc.cfdownloader;
 
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class CurseForgeDownloader extends Application {
+
+    private static boolean RUNNING = true;
 
     private final FXMLLoader loader = new FXMLLoader();
 
@@ -17,15 +18,26 @@ public class CurseForgeDownloader extends Application {
     }
 
 
+
     @Override
     public void start(Stage stage) throws Exception {
+
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            e.printStackTrace();
+            //if(Platform.isFxApplicationThread())
+                //MessageUtils.error(e);
+        });
+
         stage.setTitle("CF Downloader");
 
-        Platform.runLater(CurseForgeUtils::new);
+        CurseForgeUtils.init();
+        ImageCache.init();
 
         loader.setLocation(ClassLoader.getSystemResource("Main.fxml"));
         Parent root = loader.load();
         Scene scene = new Scene(root);
+        MainController controller = loader.getController();
+        controller.stage = stage;
         stage.setScene(scene);
         stage.setOnCloseRequest(event -> {
             event.consume();
@@ -39,9 +51,11 @@ public class CurseForgeDownloader extends Application {
     }
 
     public static void exit(int code){
+        RUNNING = false;
         System.exit(code);
     }
 
-
-
+    public static boolean isRunning() {
+        return RUNNING;
+    }
 }

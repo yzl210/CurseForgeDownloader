@@ -13,24 +13,26 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@NotNull
 public class CurseForgeUtils {
 
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    @NotNull
     public static final CurseForgeAPI API = createAPI();
+    @NotNull
     public static final Game MINECRAFT = API == null ? null : getMinecraft();
+    @NotNull
+    public static final List<Category> ALL_CATEGORIES = API == null ? null : getAllCategories();
 
-    public static final Category MOD_CATEGORY = API == null ? null : getCategory();
 
-
-    static {
-        System.out.println(MOD_CATEGORY.name());
-    }
-
+    public static void init(){};
+    @NotNull
     private static CurseForgeAPI createAPI() {
         try {
            return CurseForgeAPI
@@ -46,8 +48,6 @@ public class CurseForgeUtils {
 
     private static Game getMinecraft() {
         try {
-            if(API == null)
-                throw new NullPointerException("CF Core API is null!");
             return API.makeRequest(Requests.getGame(Constants.GameIDs.MINECRAFT)).orElseThrow(() -> new RuntimeException("Minecraft game not present!"));
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,21 +56,16 @@ public class CurseForgeUtils {
         return null;
     }
 
-    private static Category getCategory() {
+    private static List<Category> getAllCategories() {
         try {
-            if(API == null)
-                throw new NullPointerException("CF Core API is null!");
             return API.makeRequest(Requests.getCategories(Constants.GameIDs.MINECRAFT))
-                    .orElseThrow(() -> new RuntimeException("Minecraft categories not present!"))
-                    .stream().filter(category -> category.id() == 6).findFirst()
-                    .orElseThrow(() -> new RuntimeException("Minecraft mod category not present!"));
+                    .orElseThrow(() -> new RuntimeException("Minecraft categories not present!"));
         } catch (Exception e) {
             e.printStackTrace();
-            MessageUtils.error(e, "Failed to get minecraft version types from CF Core API!", MessageUtils.EXIT);
+            MessageUtils.error(e, "Failed to get all categories version types from CF Core API!", MessageUtils.EXIT);
         }
         return null;
     }
-
 
 
     public static List<Mod> searchMods(String name) throws RuntimeException {
@@ -137,10 +132,11 @@ public class CurseForgeUtils {
         return fails;
     }
 
-    public static List<Mod> downloadWrappers(Collection<CFModWrapper> modWrappers, Stage stage) {
+    public static List<Mod> downloadWrappers(Collection<ModNode> modWrappers, Stage stage) {
         List<Mod> fails = new ArrayList<>();
         List<Mod> result = download(modWrappers.stream()
-                .map(CFModWrapper::getMod)
+                .map(ModNode::getMod)
+                .map(CFMod::getMod)
                 .map(mod -> {
                     Optional<File> file = getLatestFile(mod);
                     if (file.isEmpty())

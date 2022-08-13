@@ -1,6 +1,5 @@
 package cn.leomc.cfdownloader;
 
-import com.sun.javafx.tk.Toolkit;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;

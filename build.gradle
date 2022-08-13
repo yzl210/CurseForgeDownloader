@@ -32,5 +32,7 @@ javafx {
 dependencies {
     implementation 'io.github.matyrobbrt:curseforgeapi:1.7.3'
     implementation 'io.github.palexdev:materialfx:11.13.5'
+    implementation "com.google.code.gson:gson:2.9.0"
+    compileOnly 'org.jetbrains:annotations:23.0.0'
 }
 
