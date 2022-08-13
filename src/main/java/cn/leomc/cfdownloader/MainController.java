@@ -226,8 +226,11 @@ public class MainController {
 
     public MFXListView<ModNode> modpackModListView;
     public Label modpackNameLabel;
+    public Label modpackAuthor;
+    public Label modpackVersion;
     public Label modpackMods;
-    public Label modpackInfoLabel;
+    public Label modpackMCVersion;
+    public Label modpackModLoaders;
 
     public MFXButton loadModpackButton;
 
@@ -262,15 +265,15 @@ public class MainController {
                 .thenAccept(info -> {
                     Platform.runLater(() -> {
                         modpackNameLabel.setText(info.manifest().name());
-                        String s = "Name: " + info.manifest().name() +
-                                "\nAuthor: " + info.manifest().author() +
-                                "\nVersion: " + info.manifest().version() +
-                                "\nMC Version: " + info.manifest().mcVersion() +
-                                "\nMod Loaders: " + info.manifest().modLoaders().stream().map(ModLoader::id).collect(Collectors.joining(", "));
-                        modpackInfoLabel.setText(s);
+                        modpackAuthor.setText("Author: " + info.manifest().author());
+                        modpackMods.setText("Mods: " + info.manifest().files().size());
+                        modpackVersion.setText("Version: " + info.manifest().version());
+                        modpackMCVersion.setText("MC Version: " + info.manifest().mcVersion());
+                        modpackModLoaders.setText("Mod Loader(s): " + info.manifest().modLoaders().stream().map(ModLoader::id).collect(Collectors.joining(", ")));
 
                         progressPane.main().setStatus("Loading Mods");
                         ProgressBarControl bar = progressPane.create();
+                        progressPane.create().set("Fetching from curseforge", -1);
 
                         AtomicInteger added = new AtomicInteger();
 

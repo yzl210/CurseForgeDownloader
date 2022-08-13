@@ -5,21 +5,14 @@
 }
 
 .button {
-    -fx-background-color: -gradient;
-    -fx-border-color: -gradient;
-    -fx-border-radius: 3;
-    -fx-text-fill: white;
-}
-
-.outline-button {
     -fx-background-color: transparent;
     -fx-border-color: -gradient;
     -fx-border-radius: 3;
     -fx-text-fill: -gradient;
 }
 
-.outline-button:hover,
-.outline-button:focused {
+.button:hover,
+.button:focused {
     -fx-background-color: -gradient;
     -fx-text-fill: white;
 
